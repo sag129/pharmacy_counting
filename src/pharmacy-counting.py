@@ -11,11 +11,6 @@ import sys
 import csv
 import os
 
-# check that python 3 is being run
-if sys.version_info[0] < 3:
-    raise Exception("Python 3 or a more recent version is required.")
-
-
 # Data structure
 #    {'prescriber_last_name': [...], 
 #    'drug_cost': [...], 
@@ -30,12 +25,12 @@ def is_prescription(line_num, line):
     Return true/false object from a string in prescription record format.
     Return true if the line is for a prescription.  False, otherwise. 
     """
-    #id,prescriber_last_name,prescriber_first_name,drug_name,drug_cost
-    #1000000001,Smith,James,AMBIEN,100
-    #1000000002,Garcia,Maria,AMBIEN,200
-    #1000000003,Johnson,James,CHLORPROMAZINE,1000
-    #1000000004,Rodriguez,Maria,CHLORPROMAZINE,2000
-    #1000000005,Smith,David,BENZTROPINE MESYLATE,1500
+#    id,prescriber_last_name,prescriber_first_name,drug_name,drug_cost
+#    1000000001,Smith,James,AMBIEN,100
+#    1000000002,Garcia,Maria,AMBIEN,200
+#    1000000003,Johnson,James,CHLORPROMAZINE,1000
+#    1000000004,Rodriguez,Maria,CHLORPROMAZINE,2000
+#    1000000005,Smith,David,BENZTROPINE MESYLATE,1500
     currentline = line.split(",")
     
     pid = currentline[0]
@@ -49,7 +44,7 @@ def is_prescription(line_num, line):
 #    print("prescriber_first_name==" + prescriber_first_name)
 #    print("drug_name==" + str(drug_name))
 #    print("drug_cost==" + str(drug_cost))
-    
+
     try:
         if (len(currentline) == 5 and
             isinstance(int(pid), (int)) and
@@ -75,33 +70,40 @@ def duplicates(lst, item):
 
 #############################################################################
 #############################################################################
+# check that python 3 is being run
+if sys.version_info[0] < 3:
+    raise Exception("Python 3 or a more recent version is required.")
 
-#input_file = sys.argv[1]
-#output_file = sys.argv[2]
-#
-#try:
-#    if len(sys.argv) < 3:
-#        sys.exit("Need output file argument")
-#    if len(sys.argv) > 3:
-#        print("Only input file argument and output file argument accepted")
-#except ValueError:
-#    sys.exit("Arguments should be input file and then output file")
-#
-#cwd = os.getcwd()
-#fname = os.path.join(cwd, input_file.replace("./", ""))
-#outfile = os.path.join(cwd, output_file.replace("./", ""))
-#
-##print(fname)
-##print(outfile)
-#
-#try:
-#    if not is_non_zero_file(fname):
-#        sys.exit("Empty input file")
-#except ValueError:
-#    sys.exit("Check input file errors")
+input_file = sys.argv[1]
+output_file = sys.argv[2]
 
-fname = '/Users/sag129/Desktop/pharmacy_counting/insight_testsuite/tests/test_1/input/itcont.txt'
-outfile = '/Users/sag129/Desktop/pharmacy_counting/insight_testsuite/tests/test_1/output/top_cost_drug.txt'
+try:
+    if len(sys.argv) < 3:
+        sys.exit("Need output file argument")
+    if len(sys.argv) > 3:
+        print("Only input file argument and output file argument accepted")
+except ValueError:
+    sys.exit("Arguments should be input file and then output file")
+
+cwd = os.getcwd()
+fname = os.path.join(cwd, input_file.replace("./", ""))
+outfile = os.path.join(cwd, output_file.replace("./", ""))
+
+#print(fname)
+#print(outfile)
+
+try:
+    if not is_non_zero_file(fname):
+        sys.exit("Empty input file")
+except ValueError:
+    sys.exit("Check input file errors")
+
+# test files
+#fname = '/Users/sag129/Desktop/pharmacy_counting/insight_testsuite/tests/test_1/input/itcont.txt'
+#outfile = '/Users/sag129/Desktop/pharmacy_counting/insight_testsuite/tests/test_1/output/top_cost_drug.txt'
+
+#fname = '/Users/sag129/Desktop/pharmacy_counting/insight_testsuite/tests/your-own-test_1/input/itcont.txt'
+#outfile = '/Users/sag129/Desktop/pharmacy_counting/insight_testsuite/tests/your-own-test_1/output/top_cost_drug.txt'
 
 # First, you should write Python code to process all the files for a given year
 fid = open(fname, 'r', encoding='utf-8')
@@ -109,23 +111,23 @@ fid = open(fname, 'r', encoding='utf-8')
 prescriptions = {}
 headers = []
 for line_num, line in enumerate(fid):
-        # If line is for a prescription, create a list of info for 
-        # prescriptions and append to master list "prescriptions"
-        if line_num == 0:
-            currentline = line.split(",")
-            if len(currentline) != 5:
-                sys.exit("wrong number of columns in file")
-            for i in range(len(currentline)):
-                headers.append(currentline[i].rstrip())
-#        print(headers)
-            for h in headers:
-                prescriptions[h] = []
-            
-        if line_num > 0 and (is_prescription(line_num, line) == True):
-            currentline = line.split(",")
-            for h, v in zip(headers, currentline):
-                prescriptions[h].append(v.rstrip())
-print(prescriptions)
+    # If line is for a prescription, create a list of info for 
+    # prescriptions and append to master list "prescriptions"
+    if line_num == 0:
+        currentline = line.split(",")
+#        print(currentline)
+        if len(currentline) != 5:
+            sys.exit("wrong number of columns in file")
+        for i in range(len(currentline)):
+            headers.append(currentline[i].rstrip())
+        for h in headers:
+            prescriptions[h] = []
+        
+    if line_num > 0 and (is_prescription(line_num, line) == True):
+        currentline = line.split(",")
+        for h, v in zip(headers, currentline):
+            prescriptions[h].append(v.rstrip())
+#print(prescriptions)
 
 # produce the following output
 #drug_name,num_prescriber,total_cost
@@ -152,45 +154,64 @@ for drug in mynewlist:
     output['num_prescriber'].append(num_prescriber)
     output['total_cost'].append(total_cost)
 
-# order in descending order based on total drug cost
-# print(sorted(output['total_cost'], reverse=True))
-rev_tc = list(reversed(output['total_cost']))
+# order total cost in descending order based on total drug cost
+rev_tc = sorted(output['total_cost'], reverse=True)
 rev_tc_ind = sorted(range(len(output['total_cost'])), key=lambda k: rev_tc[k])
 
 # re-order lists in output dictionary
-for h in newheaders:
+target = [output['total_cost'][x] for x in rev_tc_ind]
+output['total_cost'] = target
+
+column_not_tc = [i for i in newheaders if i!='total_cost']
+
+for h in column_not_tc:
     output[h] = [output[h][x] for x in rev_tc_ind]
 
 # break tie by ordering by ascending drug name
 myset1 = set(output['total_cost'])
 mynewlist1 = list(myset1)
 
-for total_cost in mynewlist1:
+for tot_cost in mynewlist1:
 #   index of duplicate total_cost values for specific total_cost value
-    dup_ind = duplicates(output['total_cost'], 3000)
-#   find corresponding drug_names of duplicate total_cost values
-    tie_drug_names = [output['drug_name'][x] for x in dup_ind]
     
-    d = {}
-    for k, v in zip(tie_drug_names, dup_ind):
-        d[k] = v
-    # sort tied drug_names alphabetically
-    sort_drug_names = sorted(tie_drug_names)
-    sort_drug_ind = [d[i] for i in sort_drug_names]
+    dup_ind = duplicates(output['total_cost'], tot_cost)
     
-    # order by ascending drug name - 
-    [dup_ind, sort_drug_ind]
-    # sort_drug_ind
-    [output['num_prescriber'][x] for x in sort_drug_ind]
-    [output['num_prescriber'][x] for x in sort_drug_ind]
-    [output['total_cost'][x] for x in sort_drug_ind]
-
+    if len(dup_ind) == 1:
+        continue
+    else:
+        # introduce a break for testing
+#        output['drug_name'] = ['BENZTROPINE MESYLATE', 'CHLORPROMAZINE', 'AMBIEN']
         
+    #   find corresponding drug_names of duplicate total_cost values
+        tie_drug_names = [output['drug_name'][x] for x in dup_ind]
+        
+        # create a dictionary {drug_name1: original_index}
+        d = {}
+        for k, v in zip(tie_drug_names, dup_ind):
+            d[k] = v
+        
+        # sort tied drug_names alphabetically
+        sort_drug_names = sorted(tie_drug_names)
+        # get corresponding new indices for each sorted drug name
+        sort_drug_ind = [d[i] for i in sort_drug_names]
+        
+        # re-sort output table for duplicates of total_value by sort_drug_ind
+    #    output['drug_name'][pos] = [output['drug_name'][x] for x in sort_drug_ind][target]
+        
+        for h in newheaders:
+            target = [output[h][x] for x in sort_drug_ind]
+            pos = dup_ind
+            for x,y in zip(pos,target):
+                output[h][x] = y
 
 with open(outfile, 'w+') as out:
     mywriter = csv.writer(out)
     # manually add header
-
     mywriter.writerow(newheaders)
-    for d in output:
-        mywriter.writerow(d)
+    
+    nrow = len(output['total_cost'])
+    for i in range(nrow):
+        row = [output['drug_name'][i], output['num_prescriber'][i], output['total_cost'][i]]
+        mywriter.writerow(row)
+
+print("Writing outfile complete")
