@@ -7,19 +7,20 @@ Created on Jul 16, 2018
 
 @general instructions:
 """
+import sys
 import csv
 import os
-from os.path import isfile, join
 
 # Data structure
-# {
-#    {AK: [List of bridges for AK],
-#    AL: [[L(1), L(2), ...], [L(1), L(2), ...],...], ...}
-# }
+#    {'prescriber_last_name': [...], 
+#    'drug_cost': [...], 
+#    'id': [...], 
+#    'prescriber_first_name': [...], 
+#    'drug_name': [...],}
 
 #    METHODS
 
-def is_prescription(line):
+def is_prescription(line_num, line):
     """
     Return true/false object from a string in prescription record format.
     Return true if the line is for a prescription.  False, otherwise. 
@@ -36,7 +37,7 @@ def is_prescription(line):
     prescriber_last_name = currentline[1]
     prescriber_first_name = currentline[2]
     drug_name = currentline[3]
-    drug_cost = line.strip(currentline[4])
+    drug_cost = currentline[4].rstrip()
 
 #    print("pid==" + str(pid))
 #    print("prescriber_last_name==" + str(prescriber_last_name))
@@ -44,44 +45,69 @@ def is_prescription(line):
 #    print("drug_name==" + str(drug_name))
 #    print("drug_cost==" + str(drug_cost))
     
-#    print(len(currentline))
-    
     try:
-        if (len(currentline) == 5
+        if (len(currentline) == 5 and
+            isinstance(int(pid), (int)) and
+            len(prescriber_last_name) > 0 and
+            not isinstance(prescriber_last_name, (int, float, complex)) and
+            len(prescriber_first_name) > 0 and
+            not isinstance(prescriber_first_name, (int, float, complex)) and
+            len(drug_name) > 0 and
+            isinstance(int(drug_cost), (int))
             ):
             return True
         else:
+            print("line_num %10 is broken prescription data line", (line_num))
             return False
     except ValueError:
         return False
     
-
+def is_non_zero_file(fpath):
+    return (os.path.isfile(fpath) and os.path.getsize(fpath) > 0)
 
 #############################################################################
 #############################################################################
+
+input_file = sys.argv[1]
+output_file = sys.argv[2]
+
+try:
+    if len(sys.argv) < 3:
+        sys.exit("Need output file argument")
+    if len(sys.argv) > 3:
+        print("Only input file argument and output file argument accepted")
+except ValueError:
+    sys.exit("Arguments should be input file and then output file")
+
+cwd = os.getcwd()
+fname = os.path.join(cwd, input_file.replace("./", ""))
+outfile = os.path.join(cwd, output_file.replace("./", ""))
+
+try:
+    if not is_non_zero_file(fname):
+        sys.exit("Empty input file")
+except ValueError:
+    sys.exit("Check input file errors")
 
 # First, you should write Python code to process all the files for a given year
-dpath = "/Users/sag129/Desktop/pharmacy_counting/insight_testsuite/tests/test_1/"
-fname = dpath + "input/itcont.txt"
-
 fid = open(fname, 'r', encoding='utf-8')
 
 prescriptions = {}
 headers = []
 for line_num, line in enumerate(fid):
-    if (is_prescription(line) == True):
         # If line is for a prescription, create a list of info for 
         # prescriptions and append to master list "prescriptions"
         if line_num == 0:
             currentline = line.split(",")
+            if len(currentline) != 5:
+                sys.exit("wrong number of columns in file")
             for i in range(len(currentline)):
                 headers.append(currentline[i].rstrip())
 #        print(headers)
             for h in headers:
                 prescriptions[h] = []
             
-        if line_num > 0:
-            print(line_num)
+        if line_num > 0 and (is_prescription(line_num, line) == True):
             currentline = line.split(",")
             for h, v in zip(headers, currentline):
                 prescriptions[h].append(v.rstrip())
@@ -105,8 +131,6 @@ for drug in mynewlist:
     num_prescriber = len(drug_ind)
     total_cost = sum([int(prescriptions['drug_cost'][x]) for x in drug_ind])
     output.append([drug, num_prescriber, total_cost])
-
-outfile = dpath + "output/"
 
 with open('top_cost_drug.txt', 'w') as outfile:
     mywriter = csv.writer(outfile)
