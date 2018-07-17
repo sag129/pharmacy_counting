@@ -11,6 +11,11 @@ import sys
 import csv
 import os
 
+# check that python 3 is being run
+if sys.version_info[0] < 3:
+    raise Exception("Python 3 or a more recent version is required.")
+
+
 # Data structure
 #    {'prescriber_last_name': [...], 
 #    'drug_cost': [...], 
@@ -65,29 +70,38 @@ def is_prescription(line_num, line):
 def is_non_zero_file(fpath):
     return (os.path.isfile(fpath) and os.path.getsize(fpath) > 0)
 
+def duplicates(lst, item):
+    return [i for i, x in enumerate(lst) if x == item]
+
 #############################################################################
 #############################################################################
 
-input_file = sys.argv[1]
-output_file = sys.argv[2]
+#input_file = sys.argv[1]
+#output_file = sys.argv[2]
+#
+#try:
+#    if len(sys.argv) < 3:
+#        sys.exit("Need output file argument")
+#    if len(sys.argv) > 3:
+#        print("Only input file argument and output file argument accepted")
+#except ValueError:
+#    sys.exit("Arguments should be input file and then output file")
+#
+#cwd = os.getcwd()
+#fname = os.path.join(cwd, input_file.replace("./", ""))
+#outfile = os.path.join(cwd, output_file.replace("./", ""))
+#
+##print(fname)
+##print(outfile)
+#
+#try:
+#    if not is_non_zero_file(fname):
+#        sys.exit("Empty input file")
+#except ValueError:
+#    sys.exit("Check input file errors")
 
-try:
-    if len(sys.argv) < 3:
-        sys.exit("Need output file argument")
-    if len(sys.argv) > 3:
-        print("Only input file argument and output file argument accepted")
-except ValueError:
-    sys.exit("Arguments should be input file and then output file")
-
-cwd = os.getcwd()
-fname = os.path.join(cwd, input_file.replace("./", ""))
-outfile = os.path.join(cwd, output_file.replace("./", ""))
-
-try:
-    if not is_non_zero_file(fname):
-        sys.exit("Empty input file")
-except ValueError:
-    sys.exit("Check input file errors")
+fname = '/Users/sag129/Desktop/pharmacy_counting/insight_testsuite/tests/test_1/input/itcont.txt'
+outfile = '/Users/sag129/Desktop/pharmacy_counting/insight_testsuite/tests/test_1/output/top_cost_drug.txt'
 
 # First, you should write Python code to process all the files for a given year
 fid = open(fname, 'r', encoding='utf-8')
@@ -121,19 +135,60 @@ print(prescriptions)
 
 # get sorted list of drugs
 myset = set(prescriptions['drug_name'])
-mynewlist = sorted(list(myset))
+mynewlist = list(myset)
 
 newheaders = ['drug_name', 'num_prescriber', 'total_cost']
-output = []
+output = {}
 
+for h in newheaders:
+    output[h] = []
+
+# create [[drug, num_prescriber, total_cost], [...], [...]]
 for drug in mynewlist:
-    drug_ind = [i for i, j in enumerate(prescriptions['drug_name']) if j == 'AMBIEN']
+    drug_ind = [i for i, j in enumerate(prescriptions['drug_name']) if j == drug]
     num_prescriber = len(drug_ind)
     total_cost = sum([int(prescriptions['drug_cost'][x]) for x in drug_ind])
-    output.append([drug, num_prescriber, total_cost])
+    output['drug_name'].append(drug)
+    output['num_prescriber'].append(num_prescriber)
+    output['total_cost'].append(total_cost)
 
-with open('top_cost_drug.txt', 'w') as outfile:
-    mywriter = csv.writer(outfile)
+# order in descending order based on total drug cost
+# print(sorted(output['total_cost'], reverse=True))
+rev_tc = list(reversed(output['total_cost']))
+rev_tc_ind = sorted(range(len(output['total_cost'])), key=lambda k: rev_tc[k])
+
+# re-order lists in output dictionary
+for h in newheaders:
+    output[h] = [output[h][x] for x in rev_tc_ind]
+
+# break tie by ordering by ascending drug name
+myset1 = set(output['total_cost'])
+mynewlist1 = list(myset1)
+
+for total_cost in mynewlist1:
+#   index of duplicate total_cost values for specific total_cost value
+    dup_ind = duplicates(output['total_cost'], 3000)
+#   find corresponding drug_names of duplicate total_cost values
+    tie_drug_names = [output['drug_name'][x] for x in dup_ind]
+    
+    d = {}
+    for k, v in zip(tie_drug_names, dup_ind):
+        d[k] = v
+    # sort tied drug_names alphabetically
+    sort_drug_names = sorted(tie_drug_names)
+    sort_drug_ind = [d[i] for i in sort_drug_names]
+    
+    # order by ascending drug name - 
+    [dup_ind, sort_drug_ind]
+    # sort_drug_ind
+    [output['num_prescriber'][x] for x in sort_drug_ind]
+    [output['num_prescriber'][x] for x in sort_drug_ind]
+    [output['total_cost'][x] for x in sort_drug_ind]
+
+        
+
+with open(outfile, 'w+') as out:
+    mywriter = csv.writer(out)
     # manually add header
 
     mywriter.writerow(newheaders)
