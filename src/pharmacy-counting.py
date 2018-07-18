@@ -19,6 +19,22 @@ import os
 #    'drug_name': [...],}
 
 #    METHODS
+def check_input_ids():
+    """
+    Return true if there are no duplicates of id in input file
+    Return false otherwise
+    """
+    list_id = []
+    for line_num, line in enumerate(fid):
+        if line_num == 0:
+            currentline = line.split(",")
+            if currentline[0] != "id":
+                raise Exception("first column is not 'id'")
+        if line_num > 0:
+            currentline = line.split(",")
+            list_id.append(currentline[0])
+    return len(list_id) == len(set(list_id))
+        
 
 def is_prescription(line_num, line):
     """
@@ -63,9 +79,16 @@ def is_prescription(line_num, line):
         return False
     
 def is_non_zero_file(fpath):
+    """
+    Returns true if file is non-empty
+    Returns false if file is empty
+    """
     return (os.path.isfile(fpath) and os.path.getsize(fpath) > 0)
 
 def duplicates(lst, item):
+    """
+    Returns indices of designated in list
+    """
     return [i for i, x in enumerate(lst) if x == item]
 
 #############################################################################
@@ -110,12 +133,15 @@ fid = open(fname, 'r', encoding='utf-8')
 
 prescriptions = {}
 headers = []
+
+if check_input_ids(fid) == False:
+    raise Exception("Duplicates of id present in input file")
+
 for line_num, line in enumerate(fid):
     # If line is for a prescription, create a list of info for 
     # prescriptions and append to master list "prescriptions"
     if line_num == 0:
         currentline = line.split(",")
-#        print(currentline)
         if len(currentline) != 5:
             sys.exit("wrong number of columns in file")
         for i in range(len(currentline)):
@@ -155,35 +181,34 @@ for drug in mynewlist:
     output['total_cost'].append(total_cost)
 
 # order total cost in descending order based on total drug cost
-rev_tc = sorted(output['total_cost'], reverse=True)
-rev_tc_ind = sorted(range(len(output['total_cost'])), key=lambda k: rev_tc[k])
+sort_tc = sorted(output['total_cost'], reverse=False)
+
+myList = output['total_cost']
+sort_tc_ind = [i[0] for i in sorted(enumerate(myList), key=lambda x:x[1])]
+rev_tc_ind = sort_tc_ind[::-1]
 
 # re-order lists in output dictionary
-target = [output['total_cost'][x] for x in rev_tc_ind]
-output['total_cost'] = target
+#target = [output['total_cost'][x] for x in rev_tc_ind]
+output['total_cost'] = [output['total_cost'][x] for x in rev_tc_ind]
 
 column_not_tc = [i for i in newheaders if i!='total_cost']
 
 for h in column_not_tc:
     output[h] = [output[h][x] for x in rev_tc_ind]
 
+#print(output)
+
 # break tie by ordering by ascending drug name
 myset1 = set(output['total_cost'])
 mynewlist1 = list(myset1)
 
 for tot_cost in mynewlist1:
-#   index of duplicate total_cost values for specific total_cost value
+    dup_ind = duplicates(output['total_cost'], 3000)
+    # ^ index of duplicate total_cost values for specific total_cost value
     
-    dup_ind = duplicates(output['total_cost'], tot_cost)
-    
-    if len(dup_ind) == 1:
-        continue
-    else:
-        # introduce a break for testing
-#        output['drug_name'] = ['BENZTROPINE MESYLATE', 'CHLORPROMAZINE', 'AMBIEN']
-        
-    #   find corresponding drug_names of duplicate total_cost values
+    if len(dup_ind) > 1:
         tie_drug_names = [output['drug_name'][x] for x in dup_ind]
+        # ^ find corresponding drug_names of duplicate total_cost values
         
         # create a dictionary {drug_name1: original_index}
         d = {}
@@ -203,6 +228,10 @@ for tot_cost in mynewlist1:
             pos = dup_ind
             for x,y in zip(pos,target):
                 output[h][x] = y
+    else:
+        continue        
+
+#print(output)
 
 with open(outfile, 'w+') as out:
     mywriter = csv.writer(out)
