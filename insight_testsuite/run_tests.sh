@@ -7,3 +7,5 @@ chmod +x ./run_tests.sh
 python ../src/pharmacy-counting.py ./tests/test_1/input/itcont.txt ./tests/test_1/output/top_cost_drug.txt
 
 python ../src/pharmacy-counting.py ./tests/your-own-test_1/input/itcont.txt ./tests/your-own-test_1/output/top_cost_drug.txt
+
+python ../src/pharmacy-counting.py ./tests/your-own-test_1/input/itcont1.txt ./tests/your-own-test_1/output/top_cost_drug1.txt
