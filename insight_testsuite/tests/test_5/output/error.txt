@@ -1,0 +1,4 @@
+broken prescription data line at line 2
+broken prescription data line at line 4
+broken prescription data line at line 5
+Writing outfile complete

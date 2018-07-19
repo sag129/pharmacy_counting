@@ -1,4 +1,1 @@
-Traceback (most recent call last):
-  File "../src/pharmacy-counting.py", line 135, in <module>
-    raise Exception("Duplicates of id present in input file")
-Exception: Duplicates of id present in input file
+Duplicates of id present in input file

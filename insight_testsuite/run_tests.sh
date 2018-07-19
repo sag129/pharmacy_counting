@@ -218,3 +218,65 @@ else
   # rename correct output file with original output file name
   mv ./tests/test_5/output/error_correct.txt ./tests/test_5/output/error.txt
 fi
+
+####
+
+# copy correct output file
+cp ./tests/test_6/output/error.txt ./tests/test_6/output/error_correct.txt
+cp ./tests/test_6/output/top_cost_drug.txt ./tests/test_6/output/top_cost_drug_correct.txt
+
+# run python program
+python ../src/pharmacy-counting.py ./tests/test_6/input/itcont.txt ./tests/test_6/output/top_cost_drug.txt &> ./tests/test_6/output/error.txt
+
+# check for differences between output and correct output
+diff -q ./tests/test_6/output/error.txt ./tests/test_6/output/error_correct.txt 1>/dev/null
+
+if [[ $? == "0" ]]
+then
+  diff -q ./tests/test_6/output/top_cost_drug.txt ./tests/test_6/output/top_cost_drug_correct.txt 1>/dev/null
+  if [[ $? == "0" ]]
+  then
+  # show a message for passing test
+  echo "[PASS]: test_6"
+  MSG="["
+  NOW=$(date)
+  MSG+=$NOW
+  MSG+="] "
+  MSG+="1 of 1 tests passed"
+  echo $MSG
+
+  # remove correct output file since it is the same as the output file
+  rm ./tests/test_6/output/top_cost_drug_correct.txt
+  # remove correct error file since it is the same as the error file
+  rm ./tests/test_6/output/error_correct.txt
+
+  else
+  # show a message for failing test - wrong output file
+    echo "[FAIL]: test_6"
+    MSG="["
+    NOW=$(date)
+    MSG+=$NOW
+    MSG+="] "
+    MSG+="0 of 1 tests passed"
+    echo $MSG
+
+    # remove bad output file
+    rm ./tests/test_6/output/top_cost_drug.txt
+    # rename correct output file with original output file name
+    mv ./tests/test_6/output/top_cost_drug_correct.txt ./tests/test_6/output/top_cost_drug.txt
+  fi
+else
+  # show a message for failing test - wrong error message
+  echo "[FAIL]: test_6"
+  MSG="["
+  NOW=$(date)
+  MSG+=$NOW
+  MSG+="] "
+  MSG+="0 of 1 tests passed"
+  echo $MSG
+
+  # remove bad output file
+  rm ./tests/test_6/output/error.txt
+  # rename correct output file with original output file name
+  mv ./tests/test_6/output/error_correct.txt ./tests/test_6/output/error.txt
+fi
