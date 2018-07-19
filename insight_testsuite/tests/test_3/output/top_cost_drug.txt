@@ -1,4 +1,0 @@
-drug_name,num_prescriber,total_cost
-CHLORPROMAZINE,5,9000
-AMBIEN,4,4000
-BENZTROPINE MESYLATE,2,3000
