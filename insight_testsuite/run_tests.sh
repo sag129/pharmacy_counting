@@ -120,3 +120,4 @@ else
   mv ./tests/test_3/output/top_cost_drug_correct.txt ./tests/test_3/output/top_cost_drug.txt
 fi
 
+python ../src/pharmacy-counting.py ./tests/test_3/input/itcont.txt ./tests/test_3/output/top_cost_drug.txt
