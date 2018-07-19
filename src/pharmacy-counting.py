@@ -57,11 +57,12 @@ def is_prescription(line_num, line):
     drug_name = currentline[3]
     drug_cost = currentline[4].rstrip()
 
-#    print("pid==" + str(pid))
-#    print("prescriber_last_name==" + str(prescriber_last_name))
-#    print("prescriber_first_name==" + prescriber_first_name)
-#    print("drug_name==" + str(drug_name))
-#    print("drug_cost==" + str(drug_cost))
+    print("pid==" + str(pid))
+    print(isinstance(int(pid), (int)))
+   # print("prescriber_last_name==" + str(prescriber_last_name))
+   # print("prescriber_first_name==" + prescriber_first_name)
+   # print("drug_name==" + str(drug_name))
+   # print("drug_cost==" + str(drug_cost))
 
     try:
         if (len(currentline) == 5 and
@@ -99,33 +100,33 @@ def duplicates(lst, item):
 if sys.version_info[0] < 3:
     raise Exception("Python 3 or a more recent version is required.")
 
-input_file = sys.argv[1]
-output_file = sys.argv[2]
-
-try:
-    if len(sys.argv) < 3:
-        sys.exit("Need output file argument")
-    if len(sys.argv) > 3:
-        print("Only input file argument and output file argument accepted")
-except ValueError:
-    sys.exit("Arguments should be input file and then output file")
-
-cwd = os.getcwd()
-fname = os.path.join(cwd, input_file.replace("./", ""))
-outfile = os.path.join(cwd, output_file.replace("./", ""))
-
-#print(fname)
-#print(outfile)
-
-try:
-    if not is_non_zero_file(fname):
-        sys.exit("Empty input file")
-except ValueError:
-    sys.exit("Check input file errors")
+#input_file = sys.argv[1]
+#output_file = sys.argv[2]
+#
+#try:
+#    if len(sys.argv) < 3:
+#        sys.exit("Need output file argument")
+#    if len(sys.argv) > 3:
+#        print("Only input file argument and output file argument accepted")
+#except ValueError:
+#    sys.exit("Arguments should be input file and then output file")
+#
+#cwd = os.getcwd()
+#fname = os.path.join(cwd, input_file.replace("./", ""))
+#outfile = os.path.join(cwd, output_file.replace("./", ""))
+#
+##print(fname)
+##print(outfile)
+#
+#try:
+#    if not is_non_zero_file(fname):
+#        sys.exit("Empty input file")
+#except ValueError:
+#    sys.exit("Check input file errors")
 
 # test files
-#fname = '/Users/sag129/Desktop/pharmacy_counting/insight_testsuite/tests/test_1/input/itcont.txt'
-#outfile = '/Users/sag129/Desktop/pharmacy_counting/insight_testsuite/tests/test_1/output/top_cost_drug.txt'
+fname = '/Users/sag129/Desktop/pharmacy_counting/insight_testsuite/tests/test_6/input/itcont.txt'
+outfile = '/Users/sag129/Desktop/pharmacy_counting/insight_testsuite/tests/test_6/output/top_cost_drug.txt'
 
 #fname = '/Users/sag129/Desktop/pharmacy_counting/insight_testsuite/tests/your-own-test_1/input/itcont.txt'
 #outfile = '/Users/sag129/Desktop/pharmacy_counting/insight_testsuite/tests/your-own-test_1/output/top_cost_drug.txt'
@@ -156,12 +157,30 @@ for line_num, line in enumerate(fid):
         currentline = line.split(",")
         if len(currentline) != 5:
             sys.exit("wrong number of columns in file for row %10", line_num)
+        for h, v in zip(headers, currentline):
+            prescriptions[h].append(v.rstrip())
+#print(prescriptions)
+
+# produce the following output
+#drug_name,num_prescriber,total_cost
+
+newheaders = ['drug_name', 'num_prescriber', 'total_cost']
+output = {}
+
+# get sorted list of drugs
+myset = set(prescriptions['drug_name'])
+mynewlist = sorted(list(myset))
+
+for drug in mynewlist:
+    drug_ind = [i for i, j in enumerate(prescriptions['drug_name']) if j == drug]
+    num_prescriber = len(drug_ind)
+    total_cost = sum([int(prescriptions['drug_cost'][x]) for x in drug_ind])
+    output['drug_name'].append(drug)
     output['num_prescriber'].append(num_prescriber)
     output['total_cost'].append(total_cost)
 
 # order total cost in descending order based on total drug cost
 sort_tc = sorted(output['total_cost'], reverse=False)
-
 myList = output['total_cost']
 sort_tc_ind = [i[0] for i in sorted(enumerate(myList), key=lambda x:x[1])]
 rev_tc_ind = sort_tc_ind[::-1]
@@ -181,8 +200,9 @@ for h in column_not_tc:
 myset1 = set(output['total_cost'])
 mynewlist1 = list(myset1)
 
+
 for tot_cost in mynewlist1:
-    dup_ind = duplicates(output['total_cost'], 3000)
+    dup_ind = duplicates(output['total_cost'], tot_cost)
     # ^ index of duplicate total_cost values for specific total_cost value
     
     if len(dup_ind) > 1:
