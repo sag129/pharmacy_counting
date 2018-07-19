@@ -146,7 +146,7 @@ for line_num, line in enumerate(fid):
     if line_num == 0:
         currentline = line.split(",")
         if len(currentline) != 5:
-            sys.exit("wrong number of columns in file")
+            sys.exit("wrong number of header columns in file")
         for i in range(len(currentline)):
             headers.append(currentline[i].rstrip())
         for h in headers:
@@ -154,36 +154,8 @@ for line_num, line in enumerate(fid):
         
     if line_num > 0 and (is_prescription(line_num, line) == True):
         currentline = line.split(",")
-        for h, v in zip(headers, currentline):
-            prescriptions[h].append(v.rstrip())
-#print(prescriptions)
-
-if not any(prescriptions):
-    raise Exception("error: prescriptions dictionary empty")
-
-# produce the following output
-#drug_name,num_prescriber,total_cost
-#CHLORPROMAZINE,2,3000
-#BENZTROPINE MESYLATE,1,1500
-#AMBIEN,2,300
-
-# get sorted list of drugs
-myset = set(prescriptions['drug_name'])
-
-mynewlist = list(myset)
-
-newheaders = ['drug_name', 'num_prescriber', 'total_cost']
-output = {}
-
-for h in newheaders:
-    output[h] = []
-
-# create [[drug, num_prescriber, total_cost], [...], [...]]
-for drug in mynewlist:
-    drug_ind = [i for i, j in enumerate(prescriptions['drug_name']) if j == drug]
-    num_prescriber = len(drug_ind)
-    total_cost = sum([int(prescriptions['drug_cost'][x]) for x in drug_ind])
-    output['drug_name'].append(drug)
+        if len(currentline) != 5:
+            sys.exit("wrong number of columns in file for row %10", line_num)
     output['num_prescriber'].append(num_prescriber)
     output['total_cost'].append(total_cost)
 
