@@ -30,10 +30,7 @@ Test_2 - tests to see if total_costs are calculated and sorted in descending ord
 Test for program being able to catch problems
 Test_3 - tests to see if duplicate id numbers are present.  Should see error message below:
 ```
-Traceback (most recent call last):
-  File "../src/pharmacy-counting.py", line 135, in <module>
-    raise Exception("Duplicates of id present in input file")
-Exception: Duplicates of id present in input file
+Duplicates of id present in input file
 ```
 
 Test_4 - tests to see if input file is empty.  Should see error message below:
@@ -41,10 +38,30 @@ Test_4 - tests to see if input file is empty.  Should see error message below:
 Empty input file
 ```
 
-Test_5 - tests to see if input file has empty values for any column - if so, should skip these lines and raise error message.  Should see error message below:
+Test_5 - tests to see if input file has empty values for any column - if so, should skip these lines and raise error message.  Output file will still be generated.  Should see error message and output file below:
 ```
-line_num %10 is broken prescription data line 2
+broken prescription data line at line 2
+broken prescription data line at line 4
+broken prescription data line at line 5
 Writing outfile complete
+```
+```
+drug_name,num_prescriber,total_cost
+CHLORPROMAZINE,1,1000
+AMBIEN,1,100
+```
+
+Test_6 - tests to see if input file has wrong type of values for any column - if so, should skip these lines and show an error message.  Output file will still be generated.  Should see error message and output file below:
+```
+broken prescription data line at line 4
+Writing outfile complete
+```
+
+```
+drug_name,num_prescriber,total_cost
+BENZTROPINE MESYLATE,1,1500
+CHLORPROMAZINE,1,1000
+AMBIEN,2,300
 ```
 
 ## Deployment
