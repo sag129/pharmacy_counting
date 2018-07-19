@@ -19,11 +19,13 @@ import os
 #    'drug_name': [...],}
 
 #    METHODS
-def check_input_ids():
+def check_input_ids(fname):
     """
     Return true if there are no duplicates of id in input file
     Return false otherwise
     """
+    fid = open(fname, 'r', encoding='utf-8')    
+    
     list_id = []
     for line_num, line in enumerate(fid):
         if line_num == 0:
@@ -128,18 +130,19 @@ except ValueError:
 #fname = '/Users/sag129/Desktop/pharmacy_counting/insight_testsuite/tests/your-own-test_1/input/itcont.txt'
 #outfile = '/Users/sag129/Desktop/pharmacy_counting/insight_testsuite/tests/your-own-test_1/output/top_cost_drug.txt'
 
+# check if there are any duplicates in ids
+if check_input_ids(fname) == False:
+    raise Exception("Duplicates of id present in input file")
+
 # First, you should write Python code to process all the files for a given year
 fid = open(fname, 'r', encoding='utf-8')
 
 prescriptions = {}
 headers = []
 
-if check_input_ids(fid) == False:
-    raise Exception("Duplicates of id present in input file")
-
+ # If line is for a prescription, create a list of info for 
+# prescriptions and append to master list "prescriptions"
 for line_num, line in enumerate(fid):
-    # If line is for a prescription, create a list of info for 
-    # prescriptions and append to master list "prescriptions"
     if line_num == 0:
         currentline = line.split(",")
         if len(currentline) != 5:
@@ -155,6 +158,9 @@ for line_num, line in enumerate(fid):
             prescriptions[h].append(v.rstrip())
 #print(prescriptions)
 
+if not any(prescriptions):
+    raise Exception("error: prescriptions dictionary empty")
+
 # produce the following output
 #drug_name,num_prescriber,total_cost
 #CHLORPROMAZINE,2,3000
@@ -163,6 +169,7 @@ for line_num, line in enumerate(fid):
 
 # get sorted list of drugs
 myset = set(prescriptions['drug_name'])
+
 mynewlist = list(myset)
 
 newheaders = ['drug_name', 'num_prescriber', 'total_cost']
