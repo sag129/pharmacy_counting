@@ -1,4 +1,0 @@
-drug_name,num_prescriber,total_cost
-CHLORPROMAZINE,1,2000
-1500,1,1500
-AMBIEN,2,300

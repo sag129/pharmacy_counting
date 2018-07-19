@@ -218,7 +218,3 @@ else
   # rename correct output file with original output file name
   mv ./tests/test_5/output/error_correct.txt ./tests/test_5/output/error.txt
 fi
-
-####
-
-python ../src/pharmacy-counting.py ./tests/test_6/input/itcont.txt ./tests/test_6/output/top_cost_drug.txt &> ./tests/test_6/output/error.txt
